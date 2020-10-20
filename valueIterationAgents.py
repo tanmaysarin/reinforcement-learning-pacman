@@ -45,6 +45,19 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
+        for iteration in range(self.iterations):
+            bestValues = util.Counter()
+            for state in self.mdp.getStates():
+                bestActionValue = -99999
+                if mdp.isTerminal(state):
+                    bestValues[state] = 0
+                else:
+                    for action in mdp.getPossibleActions(state):
+                        value = self.getQValue(state, action)
+                        if(bestActionValue < value):
+                            bestActionValue = value
+                        bestValues[state] = bestActionValue
+            self.values = bestValues
 
 
     def getValue(self, state):
@@ -60,7 +73,13 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        Qvalue = 0
+        for transitions in self.mdp.getTransitionStatesAndProbs(state, action):
+            discount = self.discount
+            probability = transitions[1]
+            nextState = transitions[0]
+            Qvalue += probability * (self.mdp.getReward(state, action, nextState) + discount * self.getValue(nextState))
+        return Qvalue
 
     def computeActionFromValues(self, state):
         """
@@ -72,7 +91,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        bestAction = None
+        value = -9999
+        for action in self.mdp.getPossibleActions(state):
+            Qvalue = self.getQValue(state, action)
+            if(value < Qvalue):
+                value = Qvalue
+                bestAction = action
+        return bestAction
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
